@@ -4,12 +4,17 @@ import { Link, useActionData, useNavigate } from "react-router-dom";
 import images from "../../assets/images/images.png";
 import toast, { Toaster } from "react-hot-toast";
 import { loginSchema } from "../../utils/schemas/LoginSchema"
+import { Eye, EyeOff } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
 const Login = () => {
   const { signInUser } = useAuth();
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const showToast = (message, type = "success") => {
     if (type === "error") {
@@ -18,6 +23,15 @@ const Login = () => {
       toast.success(message, { position: "top-center" });
     }
   };
+  const [searchParams] = useSearchParams();
+
+useEffect(() => {
+  if (searchParams.get("verified") === "true") {
+    toast.success("Email verified successfully! Please login now. 🎉", {
+      position: "top-center",
+    });
+  }
+}, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true)
@@ -29,11 +43,11 @@ const Login = () => {
 
       if (!result) return;
       // await signInUser({email, password});
-      showToast("Login successful!", "success");
-      setTimeout(() => {
-        toast.dismiss()
-        navigate("/");
-      }, 1000);
+      // showToast("Login successful!", "success");
+      // setTimeout(() => {
+      //   toast.dismiss()
+      //   // navigate("/");
+      // }, 1000);
     } catch (err) {
       if (err.name === "ValidationError") {
         const fieldErrors = {};
@@ -43,7 +57,7 @@ const Login = () => {
         setErrors(fieldErrors);
         showToast("Please fix the highlighted errors", "error");
       } else {
-        showToast(err.message, "error");
+        // showToast(err.message, "error");
       }
     } finally {
       setLoading(false)
@@ -91,17 +105,27 @@ const Login = () => {
               className="p-3 rounded-md bg-white/20 border border-white/30 placeholder-white text-white focus:outline-none focus:ring-2 focus:ring-[#98ffcc]"
             />
             {errors.email && <p className="text-red-500 text-sm mt-2">{errors.email}</p>}
-            <input
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
-              }}
-              type="password"
-              placeholder="Password"
-              className="p-3 rounded-md bg-white/20 border border-white/30 placeholder-white text-white focus:outline-none focus:ring-2 focus:ring-[#98ffcc]"
-            />
-            {errors.password && <p className="text-red-500 text-sm mt-2">{errors.password}</p>}
+            <div className="relative">
+              <input
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
+                }}
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                className="w-full p-3 pr-10 rounded-md bg-white/20 border border-white/30 placeholder-white text-white focus:outline-none focus:ring-2 focus:ring-[#98ffcc]"
+              />
+              {/* Eye toggle button */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+              {errors.password && <p className="text-red-500 text-sm mt-2">{errors.password}</p>}
+            </div>
             <button
               type="submit"
               disabled={loading}

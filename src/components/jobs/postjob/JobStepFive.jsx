@@ -18,10 +18,16 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import FormFooter from "../../common/FormFooter/FormFooter";
 import { useFormContext } from "react-hook-form";
+import { useAuth } from "../../Auth/AuthContext";
 
-const JobStepFive = ({ onNext, onBack,handleCancel, showPrevious, isLastStep, handleSubmit, onSubmit,previousLoading, publishing }) => {
+const JobStepFive = ({ onNext, onBack,handleCancel,previousLoading, publishing }) => {
   const { getValues } = useFormContext();
+  const { user } = useAuth();
+  // console.log(user?.companyName);
+  
   const formData = getValues();
+  console.log(formData);
+  
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10">
@@ -57,10 +63,10 @@ const JobStepFive = ({ onNext, onBack,handleCancel, showPrevious, isLastStep, ha
           <div className="text-right w-full sm:w-auto">
             <p className="inline-flex items-center justify-center bg-[#284A3A] text-white px-5 py-2.5 rounded-full shadow-md text-base sm:text-lg font-semibold">
               <span className="mr-1">{formData.currency}</span>
-              <span>{formData.minSalary}</span>
+              <span>{formData.MinimumSalary}</span>
               <span className="mx-1">-</span>
               <span className="mr-1">{formData.currency}</span>
-              <span>{formData.maxSalary}</span>
+              <span>{formData.MaximumSalary}</span>
             </p>
             <p className="text-gray-500 text-xs sm:text-sm mt-1">
               per month
@@ -88,7 +94,7 @@ const JobStepFive = ({ onNext, onBack,handleCancel, showPrevious, isLastStep, ha
 
               <div className="flex-1 min-w-[200px]">
                 <h1 className="text-xl sm:text-2xl font-extrabold mb-2">
-                  {formData.companyname || "Microsoft"}
+                  {user?.companyName || user?.fullName}
                 </h1>
                 <h3 className="text-lg text-gray-900">{formData.title}</h3>
                 <div className="flex flex-wrap gap-2 mt-2 text-gray-700 text-sm sm:text-base">
@@ -96,7 +102,7 @@ const JobStepFive = ({ onNext, onBack,handleCancel, showPrevious, isLastStep, ha
                   <span>{formData.location}</span>
                   <div className="flex items-center gap-1">
                     <FontAwesomeIcon icon={faClock} className="text-gray-400" />
-                    <span>{formData.type}</span>
+                    <span>{formData.jobType}</span>
                   </div>
                 </div>
               </div>
@@ -150,8 +156,8 @@ const JobStepFive = ({ onNext, onBack,handleCancel, showPrevious, isLastStep, ha
               <h2 className="text-lg font-black">Requirements & Qualifications</h2>
             </div>
             <ul className="text-gray-700 space-y-2 text-sm sm:text-base">
-              {formData.requirements?.length ? (
-                formData.requirements.map((req, index) => (
+              {formData.qualification?.length ? (
+                (formData?.qualification || []).map((req, index) => (
                   <li key={index} className="flex items-start">
                     <FontAwesomeIcon
                       icon={faStar}
@@ -173,13 +179,13 @@ const JobStepFive = ({ onNext, onBack,handleCancel, showPrevious, isLastStep, ha
               <h2 className="font-semibold text-lg">Skills & Technologies</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {formData.perks?.length ? (
-                formData.perks.map((perk, index) => (
+              {formData.skills?.length ? (
+                formData.skills.map((skill, index) => (
                   <span
                     key={index}
                     className="inline-flex justify-center items-center border border-[#d1e0d9] bg-gradient-to-br from-[#244034] to-[#2a4b3c] text-white px-3 py-2 rounded-full text-sm font-medium shadow-md hover:bg-green-700 hover:scale-105 transition-transform"
                   >
-                    {perk}
+                    {skill}
                   </span>
                 ))
               ) : (
@@ -237,7 +243,7 @@ const JobStepFive = ({ onNext, onBack,handleCancel, showPrevious, isLastStep, ha
               ["Apply Method", formData.applyMethod],
               ["Contact Email", formData.contactEmail],
               ["Visibility", formData.visibility],
-              ["Deadline", formData.applicationDeadline],
+              ["Deadline", formData.deadline],
             ].map(([label, value], i) => (
               <div key={i} className="flex justify-between text-sm sm:text-base mb-3">
                 <p>{label}:</p>
@@ -286,6 +292,8 @@ const JobStepFive = ({ onNext, onBack,handleCancel, showPrevious, isLastStep, ha
           handleCancel={handleCancel}
           previousLoading={previousLoading}
           publishing={publishing}
+          // handleSubmit={handleSubmit}
+          // onSubmit={onSubmit}
         />
       </div>
     </div>

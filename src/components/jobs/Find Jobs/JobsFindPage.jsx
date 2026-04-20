@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import supabase from "../../../services/supabaseClient";
+// import supabase from "../../../services/supabaseClient";
 import JobCard from "./JobCard";
 import JobDetailsCard from "../Find Jobs/jobDeatilsCard";
 import SearchBar from "../SearchBar/searchBar";
@@ -11,209 +11,283 @@ import AnimatedJobPlaceholder from "../../common/loader/AnimatedJobPlaceholder";
 import NoJobsFound from "../../common/loader/NoJobsFound";
 import BigJobLoader from "../../common/loader/BigJobLoader";
 import { CircleArrowLeft } from "lucide-react";
+import API from "../../../services/api/api.js";
+import { Category } from "@mui/icons-material";
 const FindJobsPage = () => {
   const location = useLocation();
   const { id } = useParams();
+  // console.log(id, "jobid............");
+
+  // const [allJobs, setAllJobs] = useState([]);
+  // const [jobs, setJobs] = useState([]);  
+  // const [selectedJob, setSelectedJob] = useState(null);
+  // const [loading, setLoading] = useState(false);
+
   const [allJobs, setAllJobs] = useState([]);
+  // console.log(allJobs, "alljobs");
+
   const [jobs, setJobs] = useState([]);
+  // console.log(jobs, "jobs...........filter");
+
   const [selectedJob, setSelectedJob] = useState(null);
-  const [loading, setLoading] = useState(false);
+  // console.log(selectedJob,"selectedjob..........");
+
+
+
+  const [loading, setLoading] = useState(true);
+
   const [locationSuggestions, setLocationSuggestions] = useState([]);
   const [jobLoading, setJobLoading] = useState(false);
   const queryParams = new URLSearchParams(location.search);
-  // console.log(queryParams);
-
+  const keyword = queryParams.get("keyword")||"";
+  const locationName=queryParams.get("location")||""  
   const categoryFilter = queryParams.get("category");
-  // console.log(categoryFilter);
 
+  // const rememberedState = useMemo(() => {
+  //   return {
+  //     keyword: location.state?.keyword ?? "",
+  //     location: location.state?.location ?? ""
+  //   };
+  // }, [location.state]);
+  // const [filters, setFilters] = useState({
+  //   keyword:keyword || "",
+  //   location:locationName || "",
+  // });
+  /* -----------------------------------------
+     1️⃣ Apply filters passed using location.state
+     ----------------------------------------- */
+  // useEffect(() => {
+  //   if (!location.state) return;
+
+  //   const { keyword, location: loc } = location.state;
+
+  //   setFilters((prev) => ({
+  //     ...prev,
+  //     keyword: keyword || "",
+  //     location: loc || "",
+  //   }));
+  // }, [location.state]);
+
+  /* -----------------------------------------
+     2️⃣ Fetch jobs (category-based)
+  ----------------------------------------- */
+  useEffect(() => {
+    const loadJobs = async () => {
+      setLoading(true);
+
+      const res = await API.get(`/v1/jobs/get`)
+      let jobsData = res?.data?.job || [];
+
+      if (categoryFilter) {
+        jobsData = jobsData.filter((job) => job.jobCategory.toLowerCase() === categoryFilter.toLowerCase())
+      }
+      setAllJobs(jobsData || []);
+      setJobs(jobsData);
+      setLoading(false);
+    };
+
+    loadJobs();
+  }, []);
+
+  /* -----------------------------------------
+     3️⃣ Auto fetch single job when ID exists
+  ----------------------------------------- */
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchSingle = async () => {
+      setJobLoading(true);
+
+      const res = await API.get(`/v1/jobs/${id}`)
+      // console.log(res,"res.................");
+      const data = res.data.job
+
+      setSelectedJob(data || null);
+      setJobLoading(false);
+    };
+
+    fetchSingle();
+  }, [id]);
+
+  /* -----------------------------------------
+     4️⃣ Optimized Filtering when filters change
+  ----------------------------------------- */
+  useEffect(() => {
+    if(!allJobs.length) return
+
+    if(!keyword && !locationName) return;
+
+    handleSearch({
+      keyword:keyword,
+      location:locationName,
+    })
+  }, [allJobs,keyword,locationName,categoryFilter])
+
+  // useEffect(() => {
+  //   let filtered = [...allJobs];
+
+  //   // location filter
+  //   if (filters?.location?.trim() !== "") {
+  //     const loc = filters?.location?.toLowerCase();
+  //     filtered = filtered.filter((job) =>
+  //       job.location?.toLowerCase().includes(loc)
+  //     );
+  //     console.log(filtered);
+
+  //   }
+
+  //   // keyword filter
+  //   if (filters?.keyword?.trim() !== "") {
+  //     const k = filters.keyword.toLowerCase().split(" ");
+
+  //     filtered = filtered.filter((job) => {
+  //       const text = `
+  //     ${job.title || ""} 
+  //     ${job.company || ""} 
+  //     ${job.description || ""}
+  //   `.toLowerCase();
+
+  //       return k.every((word) => text.includes(word));
+  //     });
+  //   }
+
+  //   setJobs(filtered);
+  // }, [filters, allJobs]);
+
+  /* -----------------------------------------
+     5️⃣ Handle job click with delay animation
+  ----------------------------------------- */
+  
   const handleSelectedJob = (job) => {
     setJobLoading(true);
     setSelectedJob(null);
+
     setTimeout(() => {
       setSelectedJob(job);
       setJobLoading(false);
-    }, 400);
-  }
-  //  Fetch all jobs from Supabase
-
-
-  useEffect(() => {
-    const fetchJobs = async () => {
-      setLoading(true)
-      let query = supabase.from("Jobs").select("*");
-      if (categoryFilter) {
-        query = query.eq("category", categoryFilter);
-      }
-      const { data, error } = await query;
-      // console.log(data);
-
-      setLoading(false);
-      if (error) {
-        // console.error("Error fetching jobs:", error);
-      } else {
-        setAllJobs(data || []);
-        setJobs(data || []);
-      }
-    };
-    fetchJobs();
-  }, [categoryFilter]);
-  useEffect(() => {
-    if (id) {
-      setJobLoading(true);
-      const fetchSingleJob = async () => {
-        const { data, error } = await supabase.from("Jobs").select("*").eq("id", id).single()
-        if (!error && data) setSelectedJob(data);
-        setJobLoading(false);
-      }
-      fetchSingleJob();
-    }
-  }, [id])
-  useEffect(() => {
-    if (selectedJob) window.scrollTo(0, 0);
-  }, [selectedJob]);
-  useEffect(() => {
-    if (location.state) {
-      const { keyword, location: jobLocation } = location.state;
-      handleSearch({ keyword, location: jobLocation });
-
-    }
-  }, [location.state])
-
-  const fetchLocationSuggestion = async (query) => {
-    if (!query || query.trim().length < 2) {
-      setLocationSuggestions([]);
-      return;
-    }
-    const { data, error } = await supabase.from("Jobs").select("location").ilike("location", `%${query}%`).limit(10);
-    if (!error && data) {
-      const unique = [...new Set(data.map((item) => item.location).filter(Boolean))];
-      setLocationSuggestions(unique)
-    }
-  }
-  const debouncedFetch = useMemo(() => debounce(fetchLocationSuggestion, 350), [])
-  useEffect(() => {
-    return () => debouncedFetch.cancel();
-  }, [debouncedFetch]);
-  const handleSearch = (filters) => {
-    // console.log(filters);
-
-    const { location, keyword } = filters;
-    // console.log(filters);
-
-    // console.log("🔍 SEARCH STARTED ==========");
-    // console.log("Filters received:", filters);
-    // console.log("Total jobs in allJobs:", allJobs.length);
-    let filtered = allJobs;
-
-    if (location && location.trim() !== "") {
-      // console.log("📍 Filtering by location:", location);
-      filtered = filtered.filter(
-        (job) =>
-          job.location?.toLowerCase().includes(location.trim().toLowerCase())
-      );
-      // console.log("After location filter:", filtered.length);
-
-    }
-
-    // if (title && title.trim() !== "") {
-    //   filtered = filtered.filter(
-    //     (job) =>
-    //       job.title?.trim().toLowerCase() === title.trim().toLowerCase()
-    //   );
-    // }
-    if (keyword && keyword.trim() !== "") {
-      const lowerKeyword = keyword.trim().toLowerCase();
-
-      filtered = filtered.filter((job) => {
-        // Check multiple fields with partial matching
-        const titleMatch = job.title?.toLowerCase().includes(lowerKeyword);
-        const companyMatch = job.company?.toLowerCase().includes(lowerKeyword);
-        const descriptionMatch = job.description?.toLowerCase().includes(lowerKeyword);
-
-        // ✅ TYPO TOLERANCE: Check for close matches
-        const closeMatch = job.title?.toLowerCase().includes(lowerKeyword.slice(0, 5)); // "front" se bhi match karega
-
-        return titleMatch || companyMatch || descriptionMatch || closeMatch;
-      });
-    }
-
-    // console.log("🎯 FINAL RESULTS:", filtered.length);
-    setJobs(filtered);
-    // setJobs(filtered);
+    }, 3);
   };
-  // const handleSelectedJob=(job)=>{
-  //   setJobLoading(true);
-  //   setSelectedJob(null);
-  //   setTimeout(() => {
-  //     setSelectedJob(job);
-  //     setJobLoading(false)
-  //   }, 4000);
-  // }
 
-  return (
-    <>
-      <div className="p-5 bg-[#244034]">
-        <NavBar></NavBar>
+  /* -----------------------------------------
+     6️⃣ Debounced location suggestion search
+  ----------------------------------------- */
+  // const fetchLocationSuggestion = async (query) => {
+  //   if (!query || query.length < 2) {
+  //     setLocationSuggestions([]);
+  //     return;
+  //   }
+
+  //   const { data } = await supabase
+  //     .from("Jobs")
+  //     .select("location")
+  //     .ilike("location", `%${query}%`)
+  //     .limit(10);
+
+  //   if (data) {
+  //     const unique = [...new Set(data.map((i) => i.location).filter(Boolean))];
+  //     setLocationSuggestions(unique);
+  //   }
+  // };
+
+  // const debouncedFetch = useMemo(
+  //   () => debounce(fetchLocationSuggestion, 300),
+  //   []
+  // );
+
+  // useEffect(() => {
+  //   return () => debouncedFetch.cancel();
+  // }, [debouncedFetch]);
+
+  /* -----------------------------------------
+     7️⃣ SearchBar → sets filters here
+  ----------------------------------------- */
+  const handleSearch = ({ keyword, location }) => {
+    let filtered = [...allJobs]
+    if (keyword?.trim()!=="") {
+      const word = keyword.toLowerCase().split(" ")
+      filtered = filtered.filter((job) => {
+        const title = (job.jobTitle || "").toLowerCase()
+        return word.some(word => title.includes(word))
+      })
+    }
+    if (location?.trim()!=="") {
+      const locWord = location.toLowerCase().split(" ")
+      filtered = filtered.filter((job) => {
+        const jobLoc = (job.location || "").toLowerCase();
+      return locWord.every(word => jobLoc.includes(word))
+    });
+  }
+  setJobs(filtered)
+
+
+};
+
+return (
+  <>
+    <div className="p-5 bg-[#244034]">
+      <NavBar></NavBar>
+    </div>
+    <SearchBar onSearch={handleSearch}
+    //  k={location?.state?.keyword || filters?.keyword} l={location?.state?.location || filters?.location}
+    />
+    {categoryFilter && (
+      <div className="text-center mt-6 mb-10 p-4">
+        <h2 className="text-xl font-semibold text-[#244034]">
+          Showing jobs for category:{" "}
+          <span className="font-bold">{categoryFilter}</span>
+        </h2>
+        {loading ? (
+          <div className="text-center text-gray-500 text-lg">Refreshing....</div>
+        ) : (
+          <button
+            onClick={() => (window.location.href = "/jobs")}
+            className="mt-3 px-7 py-3 bg-[#244034] text-white rounded-full transition-all cursor-pointer hover:bg-[#d2f34c] hover:text-black duration-300 ease-in font-bold"
+          >
+            Show All Jobs
+          </button>
+        )}
       </div>
-      <SearchBar onSearch={handleSearch} />
-      {categoryFilter && (
-        <div className="text-center mt-6 mb-10 p-4">
-          <h2 className="text-xl font-semibold text-[#244034]">
-            Showing jobs for category:{" "}
-            <span className="font-bold">{categoryFilter}</span>
-          </h2>
-          {loading ? (
-            <div className="text-center text-gray-500 text-lg">Refreshing....</div>
+    )}
+    {loading ? (<NeoJobLoader></NeoJobLoader>) : jobs.length === 0 ? (
+      <div className="flex  items-center justify-center min-h-full">
+        <NoJobsFound message="No jobs available right now" />
+      </div>
+    ) : (
+      <div className="h-screen flex flex-col lg:flex-row overflow-hidden p-4 sm:p-6 md:p-8 gap-4 items-stretch">
+        <div className={`${selectedJob ? "hidden lg:flex" : "flex"
+          } flex-col w-full lg:w-[30%] overflow-y-auto pr-2`}>
+          <div className="w-full flex flex-col gap-4 overflow-y-auto h-full pr-2" style={{ maxHeight: "calc(100vh - 150px)" }}>
+            {jobs?.map((job) => (
+              <div
+                key={job._id}
+                className="cursor-pointer flex justify-center"
+                onClick={() => handleSelectedJob(job)}
+
+              >
+                <JobCard job={job} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className={`${selectedJob ? "flex" : "hidden lg:flex"
+          } flex-col lg:w-[70%]`}>
+          <button
+            onClick={() => setSelectedJob(null)}
+            className="text-[#244034] underline hover:text-[#244034] mb-3 lg:hidden"
+          >
+            <CircleArrowLeft className="w-10 h-10" />
+          </button>
+          {jobLoading ? (<BigJobLoader></BigJobLoader>) : selectedJob ? (
+            <div className="animate-fadeIn"><JobDetailsCard job={selectedJob} /></div>
           ) : (
-            <button
-              onClick={() => (window.location.href = "/jobs")}
-              className="mt-3 px-7 py-3 bg-[#244034] text-white rounded-full transition-all cursor-pointer hover:bg-[#d2f34c] hover:text-black duration-300 ease-in font-bold"
-            >
-              Show All Jobs
-            </button>
+            <AnimatedJobPlaceholder></AnimatedJobPlaceholder>
           )}
         </div>
-      )}
-      {loading ? (<NeoJobLoader></NeoJobLoader>) : jobs.length === 0 ? (
-        <div className="flex  items-center justify-center min-h-full">
-          <NoJobsFound message="No jobs available right now" />
-        </div>
-      ) : (
-        <div className="h-screen flex flex-col lg:flex-row overflow-hidden p-4 sm:p-6 md:p-8 gap-4 items-stretch">
-          <div className={`${selectedJob ? "hidden lg:flex" : "flex"
-            } flex-col w-full lg:w-[30%] overflow-y-auto pr-2`}>
-            <div className="w-full flex flex-col gap-4 overflow-y-auto h-full pr-2" style={{ maxHeight: "calc(100vh - 150px)" }}>
-              {jobs.map((job) => (
-                <div
-                  key={job.id}
-                  className="cursor-pointer flex justify-center"
-                  onClick={() => handleSelectedJob(job)}
-
-                >
-                  <JobCard job={job} />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className={`${selectedJob ? "flex" : "hidden lg:flex"
-            } flex-col lg:w-[70%]`}>
-            <button
-              onClick={() => setSelectedJob(null)}
-              className="text-[#244034] underline hover:text-[#244034] mb-3 lg:hidden"
-            >
-              <CircleArrowLeft className="w-10 h-10" />
-            </button>
-            {jobLoading ? (<BigJobLoader></BigJobLoader>) : selectedJob ? (
-              <div className="animate-fadeIn"><JobDetailsCard job={selectedJob} /></div>
-            ) : (
-              <AnimatedJobPlaceholder></AnimatedJobPlaceholder>
-            )}
-          </div>
-        </div>
-      )}
-    </>
-  );
+      </div>
+    )}
+  </>
+);
 };
 
 export default FindJobsPage;

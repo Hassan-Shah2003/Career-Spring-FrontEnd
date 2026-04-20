@@ -6,26 +6,29 @@ import FormFooter from "../../common/FormFooter/FormFooter";
 import CategoryOptions from "../../common/CategoryOptions/CategoryOptions";
 
 const JobStepOne = ({ onNext, handleCancel, onBack, nextLoading }) => {
+    // const { getValues } = useFormContext();
+    // console.log(getValues,"getvalues...........");
+    
   return (
     <div>
       <h1 className="text-xl font-bold">Basic Job Information</h1>
 
       <div className="mt-5 grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2  gap-6">
         <FormInput
-          name="title"
+          name="jobTitle"
           label="Job Title"
           placeholder="Enter job title"
         />
 
         <FormInput
-          name="category"
+          name="jobCategory"
           label="Job Category"
           as="select"
           options={CategoryOptions}
         />
 
         <FormInput
-          name="type"
+          name="jobType"
           label="Job Type"
           as="select"
           options={[
@@ -45,7 +48,7 @@ const JobStepOne = ({ onNext, handleCancel, onBack, nextLoading }) => {
         />
 
         <FormInput
-          name="openings"
+          name="numberOpening"
           label="Number of Openings"
           type="number"
           placeholder="0"

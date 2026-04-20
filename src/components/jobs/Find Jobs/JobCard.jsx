@@ -1,27 +1,31 @@
 import { Bookmark, MapPin, SendHorizontal, Slash } from "lucide-react";
+import { formatReadableDate } from "../../../services/utils/function";
 
 const JobCard = ({ job }) => {
+  // console.log(job);
+  const formattedDate = formatReadableDate(job?.createdAt)
   return (
     <div className="border border-gray-400 rounded-xl p-4 shadow-sm hover:shadow-gray-500 transition w-[100%] relative bg-white cursor-pointer">
       <div className="flex gap-2 mb-2">
-        <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2 py-1 rounded">
-          {job.type}
+        <span className="bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1 rounded">
+          {/* {job.jobType} */}
+          {formattedDate}
         </span>
       </div>
 
       <h2 className="text-lg font-semibold text-gray-900 hover:underline cursor-pointer">
-        {job.title}
+        {job.jobTitle}
       </h2>
 
-      <p className="text-gray-600 mt-2 mb-2">{job.company}</p>
+      <p className="text-gray-600 mt-2 mb-2">{job.postedBy.companyName}</p>
       <p className="text-gray-600 flex gap-1"><MapPin />{job.location}</p>
 
       <div className="flex gap-2 mt-2">
         <span className="bg-gray-100 text-gray-700 text-sm px-2 py-1 rounded-md">
-          {job.minSalary} - {job.maxSalary}
+          {job.MinimumSalary} - {job.MaximumSalary}
         </span>
         <span className="bg-gray-100 text-gray-700 text-sm px-2 py-1 rounded-md">
-          {job.type}
+          {job.jobType}
         </span>
       </div>
 

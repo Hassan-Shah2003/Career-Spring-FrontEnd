@@ -1,22 +1,22 @@
 const DefaultValues = {
   // STEP 1: Basic Info
-  title: "",
-  category: "",
-  type: "", 
+  jobTitle: "",
+  jobCategory: "",
+  jobType: "", 
   location: "",
-  openings: 1,
+  numberOpening: 1,
 
   // STEP 2: Job Details
   description: "",
   responsibilities: [],
-  requirements: [],
-  experienceLevel: "",
-  educationLevel: "",
+  qualification: [],
+  ExperienceLevel: "",
+  EducationRequirement: "",
   skills: [],
 
   // STEP 3: Salary & Benefits
-  minSalary: "",
-  maxSalary: "",
+  MinimumSalary: "",
+  MaximumSalary: "",
   currency: "",
   negotiable: false,
   perks: [], 
@@ -26,9 +26,9 @@ const DefaultValues = {
   applyMethod: "platform",
   applicationUrl: "",
   contactEmail: "",
-  applicationDeadline: "",
+  deadline: "",
   visibility: "Public - Listed on job board",
-  is_featured:false,
+  isFeatured:false,
 };
 
 export default DefaultValues;

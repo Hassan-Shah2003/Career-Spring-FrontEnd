@@ -6,8 +6,10 @@ import FormFooter from "../../common/FormFooter/FormFooter";
 import SkillsInput from "../../common/FormInputs/SkillsInput";
 
 const JobStepTwo = ({ onNext, onBack, handleCancel, showPrevious, previousLoading, nextLoading }) => {
-  console.log("jobstep2");
 
+  console.log("jobstep2");
+  const { getValues } = useFormContext();
+  console.log(getValues);
   return (
     <div>
       <h1 className="text-xl font-bold">Job Details</h1>
@@ -36,21 +38,21 @@ const JobStepTwo = ({ onNext, onBack, handleCancel, showPrevious, previousLoadin
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <FormInput
-          name="experienceLevel"
+          name="ExperienceLevel"
           label="Experience Level"
           as="select"
           options={[
             "Intern",
-    "Entry-Level (0-1 years)",
-    "Junior (1-3 years)",
-    "Mid-Level (3-5 years)",
-    "Senior (5-10 years)",
-    "Lead / Manager (10+ years)",
+            "Entry-Level (0-1 years)",
+            "Junior (1-3 years)",
+            "Mid-Level (3-5 years)",
+            "Senior (5-10 years)",
+            "Lead / Manager (10+ years)",
           ]}
         />
 
         <FormInput
-          name="educationLevel"
+          name="EducationRequirement"
           label="Education Requirement (optional)"
           as="select"
           options={[

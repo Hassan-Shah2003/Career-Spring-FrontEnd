@@ -6,7 +6,7 @@ const FormInput = ({ name, label, type = "text", as = "input", options = [], pla
   const showError = Boolean(errors?.[name]);
   // ✅ Handle Textarea fields
   if (as === "textarea") {
-    const isArrayField = name === "responsibilities" || name === "requirements";
+    const isArrayField = name === "responsibilities" || name === "requirements" || name === "qualification";
 
 
     return (
@@ -58,7 +58,7 @@ const FormInput = ({ name, label, type = "text", as = "input", options = [], pla
               (err, i) =>
                 err?.message && (
                   <p key={i} className="text-red-600 text-sm font-bold text-md">
-                     {err.message}
+                    {err.message}
                   </p>
                 )
             )}
@@ -79,11 +79,21 @@ const FormInput = ({ name, label, type = "text", as = "input", options = [], pla
           className={`border-2 border-gray-400 w-full p-4 mt-2 rounded-lg focus:ring-1 focus:outline-none focus:border-[#132e13] ${showError ? "border-red-500" : "border-gray-300"}`}
         >
           <option value="">Select {label}</option>
-          {[...new Set(options)].map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
+          {options.map((opt,index) => {
+            if (typeof opt === "object") {
+              return (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              );
+            }
+
+            return (
+              <option key={index} value={opt}>
+                {opt}
+              </option>
+            );
+          })}
         </select>
         <div>
           {showError && (

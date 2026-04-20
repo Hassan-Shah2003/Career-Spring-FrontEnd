@@ -1,7 +1,7 @@
 import { CircleX, FileEdit, LoaderCircle, MoveLeft, MoveRight, Rocket, X } from 'lucide-react';
 import React from 'react'
 
-const FormFooter = ({ onNext, onBack, showPrevious,previousLoading, isLastStep, publishing,nextLoading,handleCancel }) => {
+const FormFooter = ({ onNext, onBack, onPublish, showPrevious, previousLoading, isLastStep, publishing, nextLoading, handleCancel }) => {
   // console.log(publishing, "-----------publsihing");
 
   return (
@@ -20,14 +20,19 @@ const FormFooter = ({ onNext, onBack, showPrevious,previousLoading, isLastStep, 
         </div> */}
         <div className='flex items-center'>
           {showPrevious && <button onClick={onBack} className='w-full md:w-auto cursor-pointer flex items-center justify-between gap-3 font-bold p-4 rounded-lg bg-gradient-to-r from-[#a8d5ba] to-[#6fbf8d] text-[#0e241d] hover:from-[#99cfae] hover:to-[#63b582]
-' disabled={previousLoading}>{!previousLoading && <MoveLeft className="" />}{previousLoading?"...Previous":"Previous"} {previousLoading && <LoaderCircle className="animate-spin" />}
+' disabled={previousLoading}>{!previousLoading && <MoveLeft className="" />}{previousLoading ? "...Previous" : "Previous"} {previousLoading && <LoaderCircle className="animate-spin" />}
           </button>}
         </div>
         <div>
           {!isLastStep ? (<button type='button' onClick={onNext} className='w-full md:w-auto bg-[#244034] flex items-center justify-between gap-3 font-bold text-white p-4 cursor-pointer rounded-lg' disabled={nextLoading}>
-            {nextLoading?"Next....":"Next Step"}{nextLoading?<LoaderCircle className='animate-spin'></LoaderCircle>:<MoveRight className=''></MoveRight>}
+            {nextLoading ? "Next...." : "Next Step"}{nextLoading ? <LoaderCircle className='animate-spin'></LoaderCircle> : <MoveRight className=''></MoveRight>}
           </button>) :
-            (<button disabled={publishing}
+            (<button
+              type='submit'
+              // onClick={() => {
+              //   console.log("on publish")
+              // }}
+              disabled={publishing}
               className='w-full bg-green-600 flex items-center justify-between gap-3 font-bold text-white p-4 cursor-pointer rounded-lg'
             >
               {publishing ? "Publishing..." : "Publish"} {publishing ? <LoaderCircle className='animate-spin' />

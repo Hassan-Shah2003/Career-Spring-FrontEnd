@@ -1,59 +1,39 @@
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import supaBase from "../../services/supabaseClient";
+// import supaBase from "../../services/supabaseClient";
 import BigJobLoader from "../../components/common/loader/BigJobLoader";
 import { useAuth } from "../../components/Auth/AuthContext";
+import API from "../../services/api/api";
 
 const FeaturedJobs = () => {
   const [featuredJobs, setFeaturedJobs] = useState([]);
+  // console.log(featuredJobs);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
-
+  // console.log(user,"user.........");
+  
   useEffect(() => {
     const fetchFeaturedJobs = async () => {
-  setLoading(true);
+      try {
+        setLoading(true);
 
-  // Step 1: get jobs
-  const { data: jobs, error } = await supaBase
-    .from("Jobs")
-    .select("*")
-    .eq("is_featured", true)
-    .order("created_at", { ascending: false })
-    .limit(6);
+        // Step 1: get jobs
+        const res = await API.get(`/v1/jobs/get`);
+        const data = res.data.job.filter((job) => job.isFeatured === true)
+        setFeaturedJobs(data)
 
-  if (error) {
-    console.error("Jobs fetch error:", error);
-    setLoading(false);
-    return;
-  }
-
-  // Step 2: for each job, fetch latest avatar from profiles
-  const jobsWithAvatars = await Promise.all(
-    jobs.map(async (job) => {
-      const { data: profile,error } = await supaBase
-        .from("profiles")
-        .select("avatar")
-        .eq("user_id", job.user_id)
-        .single();
-
-      return {
-        ...job,
-        user_avatar:
-          profile?.avatar ||
-          "https://cdn-icons-png.flaticon.com/512/149/149071.png",
-      };
-    })
-  );
-
-  setFeaturedJobs(jobsWithAvatars);
-  setLoading(false);
-};
+      } catch (error) {
+      // console.error("Jobs fetch error:", error);        
+      } finally{
+        setLoading(false);
+      }
+    };
 
 
     fetchFeaturedJobs();
-  }, [user]);
+  }, []);
 
   return (
     <section className="relative py-24 bg-gradient-to-b from-[#f7fdfb] via-[#e9f8f1] to-[#ffffff] overflow-hidden">
@@ -76,7 +56,7 @@ const FeaturedJobs = () => {
         </motion.h2>
 
         {/* Loader */}
-        {loading ? (
+        {loading && featuredJobs.length === 0 ? (
           <BigJobLoader />
         ) : featuredJobs.length === 0 ? (
           <p className="text-center text-gray-500 text-lg">
@@ -99,12 +79,12 @@ const FeaturedJobs = () => {
           >
             {featuredJobs.map((job) => (
               <motion.div
-                key={job.id}
+                key={job._id}
                 variants={{
                   hidden: { opacity: 0, y: 40 },
                   visible: { opacity: 1, y: 0 },
                 }}
-                onClick={() => navigate(`/jobs/${job.id}`)}
+                onClick={() => navigate(`/jobs/${job._id}`)}
                 className="group relative bg-white/80 backdrop-blur-md rounded-b-2xl rounded-t-lg p-6 border border-gray-100 shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:border-[#2fa26a]/50 cursor-pointer"
               >
                 {/* Top Accent Line */}
@@ -114,21 +94,26 @@ const FeaturedJobs = () => {
                 <div className="flex justify-between items-start mb-6">
                   <div className="flex items-center space-x-4">
                     <img
-                      src={`${job.user_avatar}?t=${new Date().getTime()}`} // 👈 avoid cache
+                      src={`${job.postedBy.profile.profilePhoto}`}
                       alt="User Avatar"
                       className="w-14 h-14 rounded-full object-cover bg-[#2fa26a]/10"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+                      }}
                     />
+
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800 group-hover:text-[#244034] transition-colors">
-                        {job.title}
+                        {job?.jobTitle}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {job.company} • {job.location}
+                        {job?.postedBy?.companyName} • {job.location}
                       </p>
                     </div>
                   </div>
                   <span className="bg-[#e4f8ee] text-[#244034] text-xs px-3 py-1 rounded-full font-medium">
-                    {job.type}
+                    {job.jobType}
                   </span>
                 </div>
 
@@ -143,13 +128,13 @@ const FeaturedJobs = () => {
                 {/* Footer */}
                 <div className="flex justify-between items-center">
                   <span className="text-[#244034] font-semibold text-base">
-                    {job.salary || "Negotiable"}
+                    {job.MinimumSalary && job.MaximumSalary? `${job.MinimumSalary} - ${job.MaximumSalary} ${job.currency}`:"Negotiable"}
                   </span>
                   <button
                     className="relative bg-[#244034] text-white px-5 py-2.5 rounded-xl font-medium text-sm shadow-sm hover:shadow-lg overflow-hidden transition-all duration-300 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/jobs/${job.id}`);
+                      navigate(`/jobs/${job._id}`);
                     }}
                   >
                     <Link to="/apply-form" className="relative z-10">

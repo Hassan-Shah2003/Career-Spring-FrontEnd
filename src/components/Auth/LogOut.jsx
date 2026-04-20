@@ -1,21 +1,21 @@
 // src/components/Logout.jsx
 // import { useAuth } from "../context/AuthContext";
-import toast,{Toaster} from "react-hot-toast";
+// import toast,{Toaster} from "react-hot-toast";
 import { useAuth } from "./AuthContext";
 
 const Logout = () => {
   const { user, signOutUser } = useAuth();
-const showToast = (message, type = "success") => {
-    if (type === "error") {
-      toast.error(message, { position: "top-center" });
-    } else {
-      toast.success(message, { position: "top-center" });
-    }
-  };
+// const showToast = (message, type = "success") => {
+//     if (type === "error") {
+//       toast.error(message, { position: "top-center" });
+//     } else {
+//       toast.success(message, { position: "top-center" });
+//     }
+//   };
   const handleLogout = async () => {
     try {
       await signOutUser();
-      showToast("Logged out successfully!",);
+      // showToast("Logged out successfully!",);
     } catch (err) {
       alert(err.message);
     }

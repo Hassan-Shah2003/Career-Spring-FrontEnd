@@ -12,11 +12,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import DefaultValues from "../../common/defaultValues/DefaultValues.jsx"
 import JobSchema from "../../../utils/schemas/JobSchema.jsx"
 import { useMemo } from "react";
-import supaBase from "../../../services/supabaseClient.js"
+// import supaBase from "../../../services/supabaseClient.js"
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowBigLeft, ArrowLeftCircle, ChevronLeft, MoveLeftIcon } from "lucide-react";
 import { useAuth } from "../../Auth/AuthContext.jsx";
 import Swal from "sweetalert2";
+import API from "../../../services/api/api";
 
 const PostJob = () => {
   const { user } = useAuth()
@@ -33,12 +34,12 @@ const PostJob = () => {
     "defaultValues": DefaultValues,
     mode: "onChange", // real-time validation
   });
-  const { handleSubmit,clearErrors,reset, watch } = methods;
+  const { handleSubmit, clearErrors, reset, watch } = methods;
   const stepField = useMemo(() =>
-    [["title", "category", "type", "location", "openings"],
-    ["description", "responsibilities", "requirements", "experienceLevel", "educationLevel", "skills"],
-    ["minSalary", "maxSalary", "currency", "perks", "workSchedule"],
-    ["applyMethod", "applicationUrl", "contactEmail", "applicationDeadline", "visibility"],
+    [["jobTitle", "jobCategory", "jobType", "location", "numberOpening"],
+    ["description", "responsibilities", "requirements", "ExperienceLevel", "EducationRequirement", "skills"],
+    ["MinimumSalary", "MaximumSalary", "currency", "perks", "workSchedule"],
+    ["applyMethod", "applicationUrl", "contactEmail", "deadline", "visibility","isFeatured"],
     ], []
   );
   const nextStep = async () => {
@@ -70,78 +71,48 @@ const PostJob = () => {
   }
 
   const handleCancel = () => {
-  Swal.fire({
-    title: "Cancel Job Posting?",
-    text: "Are you sure you want to cancel this job post?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
-    confirmButtonText: "Yes, cancel it!"
-  }).then((result) => {
-    if (result.isConfirmed) {
-      clearErrors();   
-      reset();          
-      toast("Job posting cancelled", { icon: "🚫" });
+    Swal.fire({
+      title: "Cancel Job Posting?",
+      text: "Are you sure you want to cancel this job post?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, cancel it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        clearErrors();
+        reset();
+        toast("Job posting cancelled", { icon: "🚫" });
 
-      setTimeout(() => navigate("/jobs"), 800);
-    }
-  });
-};
-
+        setTimeout(() => navigate("/jobs"), 800);
+      }
+    });
+  };
+  const onError = (errors) => {
+    console.log("Validation errors:", errors);
+  };
   const onSubmit = async (data) => {
-    // console.log("✅ Job Data (before insert):", data);
-
+    console.log("Submitting job:", data); // debug line
     try {
       setPublishing(true);
-
-      // // ✅ Get logged-in user
-      // const { data: userData, error: userError } = await supaBase.auth.getUser();
-      // if (userError || !userData?.user) {
-      //   console.error("❌ Auth Error:", userError);
-      //   toast.error("User not authenticated!");
-      //   return;
-      // }
-      const { data: profileData, error: profileError } = await supaBase
-        .from("profiles")
-        .select("*") // 👈 fetch all columns, not just role
-        .eq("user_id", user?.id)
-        .single();
-
-      // const user = userData.user;
-      // console.log("👤 Logged-in user:", user);
-      // console.log("👤 Logged-in user profile:", profileData);
-
-      // ✅ Add user_id
       const jobData = {
         ...data,
-        // user_avatar: profileData?.avatar,
-        user_avatar: profileData?.avatar || "",   // store avatar
-        user_name: profileData?.name || user?.email?.split("@")[0], // store name fallback
-        user_id: user.id,
+        user_profilePhoto: user?.profile?.profilePhoto || "",   // store avatar
+        user_name: user?.fullName || user?.email?.split("@")[0],
+        companyName: user?.companyName, // store name fallback
+        postedBy: user._id,
 
       };
-      // console.log("🧱 Final jobData:", jobData);
-
-      // ✅ Insert into Supabase
-      const { data: insertData, error: insertError, status } = await supaBase
-        .from("Jobs")
-        .insert([jobData])
-        .select();
-
-      // console.log("📤 Insert response:", { insertData, insertError, status });
-
-      if (insertError) {
-        // console.error("❌ Supabase Insert Error:", insertError);
-        toast.error(`Insert failed: ${insertError.message}`);
-        return;
+      const res = await API.post("/v1/jobs/create", jobData)
+      console.log(res, "res..........");
+      if (res.data.success) {
+        toast.success("🎉 Job successfully posted!");
+        navigate("/myjobs");
       }
-
-      toast.success("🎉 Job successfully posted!");
-      navigate("/jobs");
     } catch (error) {
-      // console.error("❌ Unexpected Error:", error);
-      toast.error("Unexpected error while posting job!");
+      console.error("❌ Unexpected Error:", error);
+      toast.error(error?.response?.data?.message, "error posting job");
     } finally {
       setPublishing(false);
     }
@@ -168,19 +139,19 @@ const PostJob = () => {
         <FormProvider {...methods}>
           <div className='mt-20 px-10'>
             <div className="mb-5">
-              {ActiveStep===0 &&(<Link
+              {ActiveStep === 0 && (<Link
                 to="/"
                 className="flex items-center gap-2 text-white hover:text-amber-300"
               >
                 <ArrowLeftCircle size={26} />
                 <span className="text-xl">Back</span>
               </Link>
-            )}
+              )}
             </div>
             <div className=' bg-white p-8 shadow-[0_10px_30px_rgba(0,0,0,0.08)] rounded-lg'>
               <CustomStepper activeStep={ActiveStep}></CustomStepper>
               <div className='mt-10 p-'>
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form onSubmit={handleSubmit(onSubmit, onError)}>
                   {step[ActiveStep]}
                 </form>
               </div>

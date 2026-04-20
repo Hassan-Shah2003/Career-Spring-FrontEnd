@@ -9,7 +9,7 @@ import {
   FaFacebook, FaTwitter, FaLinkedin, FaInstagram,
   FaCheckCircle, FaUpload, FaFileAlt
 } from 'react-icons/fa';
-import supaBase from '../../services/supabaseClient';
+// import supaBase from '../../services/supabaseClient';
 import {
   Building2, Paintbrush, Wrench, Settings, Plug, Laptop,
   Globe, BarChart3, Brain, Shield, Headphones, Briefcase,
@@ -22,11 +22,14 @@ import {
 import BigJobLoader from '../../components/common/loader/BigJobLoader';
 import FeaturedJobs from '../Home/FeaturedJobs';
 import Footer from "../../components/common/Footer/Footer";
+import API from "../../services/api/api";
 
 
 const JobPortal = () => {
   // const [activeTab, setActiveTab] = useState('employee');
   const [categories, setCategories] = useState([]);
+  // console.log(categories,"categories..........................");
+  
   const [visibleCount, setVisibleCount] = useState(8)
   const [loading, setLoading] = useState(false);
   const [loadingCategory, setLoadingCategory] = useState(null);
@@ -138,19 +141,23 @@ const JobPortal = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       setLoading(true);
-      const { data, error } = await supaBase.from("Jobs").select("category", "*");
+      const res = await API.get("/v1/jobs/get")
+      const data = res.data.job.map((job)=>job.jobCategory);
+      
       // console.log(data)
-      if (error) {
-        // console.error("Error fetching categories:", error);
-        setLoading(false);
-        return;
-      }
-      const categoryCount = data.reduce((acc, job) => {
-        if (job.category) {
-          acc[job.category] = (acc[job.category] || 0) + 1;
+      // if (error) {
+      //   // console.error("Error fetching categories:", error);
+      //   setLoading(false);
+      //   return;
+      // }
+      const categoryCount = data.reduce((acc, category) => {
+        if (category) {
+          acc[category] = (acc[category] || 0) + 1;
         }
         return acc;
       }, {})
+      // console.log(categoryCount,"category const...........");
+      
       const formattedCategories = Object.entries(categoryCount).map(([name, jobs]) => ({
         name,
         jobs,
@@ -167,14 +174,14 @@ const JobPortal = () => {
     setTimeout(() => {
       setVisibleCount((prev) => prev + 8)
       setLoadingMore(false)
-    }, 1000);
+    }, 100);
   }
   const handleCategoryClick = (categoryName) => {
     if (loadingCategory) return;
     setLoadingCategory(categoryName); // loading state set karo
     navigate(`jobs?category=${encodeURIComponent(categoryName)}`)
 
-    
+
   }
 
   // Top companies
@@ -258,8 +265,8 @@ const JobPortal = () => {
                     key={index}
                     onClick={() => handleCategoryClick(category.name)}
                     className={`relative group bg-white/80 backdrop-blur-md border border-gray-100 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:border-[#2fa26a]/50 cursor-pointer overflow-hidden ${loadingCategory
-                        ? "opacity-60 cursor-not-allowed pointer-events-none"
-                        : ""
+                      ? "opacity-60 cursor-not-allowed pointer-events-none"
+                      : ""
                       }`}
                   >
                     {/* Glow Overlay */}

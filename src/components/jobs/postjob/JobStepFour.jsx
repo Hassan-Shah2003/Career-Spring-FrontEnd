@@ -4,7 +4,8 @@ import FormFooter from '../../common/FormFooter/FormFooter'
 import { useFormContext } from "react-hook-form";
 const JobStepFour = ({ onNext, onBack,previousLoading,nextLoading,handleCancel }) => {
     const { register, watch, formState: { errors } } = useFormContext()
-  
+  const { getValues } = useFormContext();
+      console.log(getValues);  
   return (
     <div>
       <div>
@@ -27,7 +28,7 @@ const JobStepFour = ({ onNext, onBack,previousLoading,nextLoading,handleCancel }
           placeholder="enter a email..."
         />
         <FormInput
-          name="applicationDeadline"
+          name="deadline"
           label="Application Deadline (optional)"
           type="date"
         />
@@ -36,18 +37,18 @@ const JobStepFour = ({ onNext, onBack,previousLoading,nextLoading,handleCancel }
           label="Job Visibility"
           as="select"
           options={[
-            "Public - Listed on job board",
-            "Only Invited Candidates",
+            {label:"Public - Listed on job board",value:true},
+            {label:"Only Invited Candidates",value:false},
           ]}
         />
        <div className="flex items-center gap-2 mt-4"> 
         <input
         type="checkbox"
-        id="is_featured"
-        name='is_featured'
-        {...register("is_featured")}
+        id="isFeatured"
+        name='isFeatured'
+        {...register("isFeatured")}
         className="w-4 h-4 text-[#244034] border-gray-300 rounded focus:ring-[#244034]  "/>
-      <label htmlFor="is_featured" className="text-gray-700 font-medium">
+      <label htmlFor="isFeatured" className="text-gray-700 font-medium">
         Mark as Featured Job
       </label>
       </div>

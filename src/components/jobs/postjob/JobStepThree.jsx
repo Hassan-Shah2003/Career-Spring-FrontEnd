@@ -10,19 +10,21 @@ const JobStepThree = ({ onNext, handleCancel, onBack, previousLoading, nextLoadi
     register,
     formState: { errors },
   } = useFormContext();
+  const { getValues } = useFormContext();
+      console.log(getValues);
   return (
     <div>
       <h1 className="text-xl font-bold mb-5">Salary & Benefits</h1>
 
       <div className='grid grid-cols-1 md:grid-cols-3 gap-3 mb-5'>
         <FormInput
-          name="minSalary"
+          name="MinimumSalary"
           label="Minimum Salary"
           type="number"
           placeholder="e.g.,60000"
         />
         <FormInput
-          name="maxSalary"
+          name="MaximumSalary"
           label="Maximum Salary"
           type="number"
           placeholder="e.g.,90000"
