@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await API.post("/auth/register", formData);
       return res.data;
+
     } catch (error) {
       toast.error(error.response?.data?.message || "Signup failed");
       throw error;
@@ -43,7 +44,8 @@ export const AuthProvider = ({ children }) => {
     try {
 
       const res=await API.post("/auth/login", { email, password }); 
-      const user  = res.data?.user;
+        const { user, token } = res.data;
+        localStorage.setItem("token", token);
       setUser(user)
       toast.success("login successfully");
       if(user?.role==="company"){
