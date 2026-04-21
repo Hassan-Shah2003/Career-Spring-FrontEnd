@@ -303,13 +303,13 @@ const CompanyProfilePage = () => {
                           <input
                             type="text"
                             name="location"
-                            value={formData.location}
+                            value={formData?.location}
                             onChange={(e) => handleInputChange(e, 'main')}
                             className="bg-transparent border-b border-gray-300 focus:outline-none focus:border-[#244034] text-sm"
                             placeholder="Headquarters"
                           />
                         ) : (
-                          <span>{userData.location || 'Add location'}</span>
+                          <span>{userData?.location || 'Add location'}</span>
                         )}
                       </span>
 
@@ -417,7 +417,7 @@ const CompanyProfilePage = () => {
                 />
               ) : (
                 <p className="text-gray-700 leading-relaxed text-lg break-words">
-                  {userData.about || 'No company description added yet. Click edit to tell candidates about your company!'}
+                  {userData?.about || 'No company description added yet. Click edit to tell candidates about your company!'}
                 </p>
               )}
             </div>
@@ -487,12 +487,12 @@ const CompanyProfilePage = () => {
                       <input
                         type="email"
                         name="email"
-                        value={formData.email}
+                        value={formData?.email}
                         onChange={(e) => handleInputChange(e, 'main')}
                         className="text-sm bg-transparent border-b border-gray-300 focus:outline-none focus:border-[#244034] w-full"
                       />
                     ) : (
-                      <p className="text-sm text-gray-900">{userData.email || 'Not provided'}</p>
+                      <p className="text-sm text-gray-900">{userData?.email || 'Not provided'}</p>
                     )}
                   </div>
                 </div>
@@ -507,12 +507,12 @@ const CompanyProfilePage = () => {
                       <input
                         type="text"
                         name="phoneNumber"
-                        value={formData.phoneNumber}
+                        value={formData?.phoneNumber}
                         onChange={(e) => handleInputChange(e, 'main')}
                         className="text-sm bg-transparent border-b border-gray-300 focus:outline-none focus:border-[#244034] w-full"
                       />
                     ) : (
-                      <p className="text-sm text-gray-900">{userData.phoneNumber || 'Not provided'}</p>
+                      <p className="text-sm text-gray-900">{userData?.phoneNumber || 'Not provided'}</p>
                     )}
                   </div>
                 </div>
@@ -617,15 +617,15 @@ const CompanyProfilePage = () => {
                   {isEditing ? (
                     <input
                       type="url"
-                      value={formData.companyProfile.socialLinks?.linkedin || ''}
+                      value={formData?.companyProfile?.socialLinks?.linkedin || ''}
                       onChange={(e) => handleInputChange(e, 'social', 'linkedin')}
                       className="w-full mt-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#244034]"
                       placeholder="LinkedIn URL"
                     />
                   ) : (
                     formData?.companyProfile?.socialLinks?.linkedin && (
-                      <a href={formData.companyProfile.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 hover:underline text-sm block mt-1 transition">
-                        {formData?.companyProfile?.socialLinks.linkedin}
+                      <a href={formData?.companyProfile?.socialLinks?.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 hover:underline text-sm block mt-1 transition">
+                        {formData?.companyProfile?.socialLinks?.linkedin}
                       </a>
                     )
                   )}
@@ -636,15 +636,15 @@ const CompanyProfilePage = () => {
                   {isEditing ? (
                     <input
                       type="url"
-                      value={formData.companyProfile.socialLinks?.twitter || ''}
+                      value={formData?.companyProfile?.socialLinks?.twitter || ''}
                       onChange={(e) => handleInputChange(e, 'social', 'twitter')}
                       className="w-full mt-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#244034]"
                       placeholder="Twitter URL"
                     />
                   ) : (
                     formData?.companyProfile?.socialLinks?.twitter && (
-                      <a href={formData.companyProfile.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 hover:underline text-sm block mt-1 transition">
-                        {formData.companyProfile.socialLinks.twitter}
+                      <a href={formData?.companyProfile?.socialLinks?.twitter} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 hover:underline text-sm block mt-1 transition">
+                        {formData?.companyProfile?.socialLinks?.twitter}
                       </a>
                     )
                   )}
@@ -655,15 +655,15 @@ const CompanyProfilePage = () => {
                   {isEditing ? (
                     <input
                       type="url"
-                      value={formData.companyProfile.socialLinks?.facebook || ''}
+                      value={formData?.companyProfile?.socialLinks?.facebook || ''}
                       onChange={(e) => handleInputChange(e, 'social', 'facebook')}
                       className="w-full mt-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#244034]"
                       placeholder="Facebook URL"
                     />
                   ) : (
                     formData?.companyProfile?.socialLinks?.facebook && (
-                      <a href={formData.companyProfile.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 hover:underline text-sm block mt-1 transition">
-                        {formData.companyProfile.socialLinks.facebook}
+                      <a href={formData?.companyProfile?.socialLinks?.facebook} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 hover:underline text-sm block mt-1 transition">
+                        {formData?.companyProfile?.socialLinks?.facebook}
                       </a>
                     )
                   )}
